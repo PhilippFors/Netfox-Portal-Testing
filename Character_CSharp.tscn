@@ -1,0 +1,37 @@
+[gd_scene load_steps=8 format=3 uid="uid://u4x4nhkbyr7u"]
+
+[ext_resource type="Script" uid="uid://cm0hf5aj0west" path="res://Scripts/Entities/Quanta-PlayerController/QuantaPlayerPawn.cs" id="1_gs2bu"]
+[ext_resource type="Script" uid="uid://bekpeljt30w4k" path="res://Scripts/Entities/Quanta-PlayerController/QuantaPlayerController.cs" id="2_6qcqi"]
+[ext_resource type="Script" uid="uid://bavwlqhn8wtxa" path="res://Scripts/Entities/Quanta-PlayerController/PlayerParams.cs" id="3_ku6ig"]
+[ext_resource type="Script" uid="uid://n7axbxksqkd5" path="res://Scripts/Entities/Quanta-PlayerController/QuantaInputController.cs" id="4_53sek"]
+
+[sub_resource type="Resource" id="Resource_qs8dd"]
+script = ExtResource("3_ku6ig")
+metadata/_custom_type_script = "uid://bavwlqhn8wtxa"
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xkc1k"]
+radius = 0.28125
+
+[sub_resource type="Resource" id="Resource_1kau4"]
+script = ExtResource("3_ku6ig")
+metadata/_custom_type_script = "uid://bavwlqhn8wtxa"
+
+[node name="CharacterCSharp" type="Node"]
+script = ExtResource("1_gs2bu")
+metadata/_custom_type_script = "uid://cm0hf5aj0west"
+
+[node name="QuantaPlayerController" type="CharacterBody3D" parent="." node_paths=PackedStringArray("collisionHull", "InputController")]
+script = ExtResource("2_6qcqi")
+collisionHull = NodePath("CollisionShape3D")
+InputController = NodePath("QuantaInputController")
+PlayerParams = SubResource("Resource_qs8dd")
+metadata/_custom_type_script = "uid://bekpeljt30w4k"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="QuantaPlayerController"]
+shape = SubResource("CapsuleShape3D_xkc1k")
+
+[node name="QuantaInputController" type="Node" parent="QuantaPlayerController" node_paths=PackedStringArray("PlayerController")]
+script = ExtResource("4_53sek")
+PlayerController = NodePath("..")
+PlayerParams = SubResource("Resource_1kau4")
+metadata/_custom_type_script = "uid://n7axbxksqkd5"

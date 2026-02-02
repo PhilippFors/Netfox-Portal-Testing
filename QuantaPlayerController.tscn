@@ -1,0 +1,133 @@
+[gd_scene load_steps=16 format=3 uid="uid://dxxbxfmn6j3ij"]
+
+[ext_resource type="Script" uid="uid://bekpeljt30w4k" path="res://Scripts/Entities/Quanta-PlayerController/QuantaPlayerController.cs" id="1_kii6u"]
+[ext_resource type="Script" uid="uid://cm0hf5aj0west" path="res://Scripts/Entities/Quanta-PlayerController/QuantaPlayerPawn.cs" id="1_ody6p"]
+[ext_resource type="Resource" uid="uid://c6bfqgqeplxrh" path="res://Scripts/Entities/playerPrams.tres" id="2_cw8r4"]
+[ext_resource type="Script" uid="uid://ddiqjj10jmqj1" path="res://addons/netfox_sharp/nodes/RollbackSynchronizer.cs" id="2_o6wgq"]
+[ext_resource type="Script" uid="uid://bavwlqhn8wtxa" path="res://Scripts/Entities/Quanta-PlayerController/PlayerParams.cs" id="3_1yudm"]
+[ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="3_5vmmf"]
+[ext_resource type="Script" uid="uid://n7axbxksqkd5" path="res://Scripts/Entities/Quanta-PlayerController/QuantaInputController.cs" id="4_4j4b7"]
+[ext_resource type="Script" uid="uid://ccd0d7xt0hpqt" path="res://Scripts/Entities/Quanta-PlayerController/QuantaPlayerCamera.cs" id="10_1ysqn"]
+[ext_resource type="Script" uid="uid://bpwxbma32yua4" path="res://Scripts/Portals/PlayerPortalTraveller.cs" id="10_bdj14"]
+[ext_resource type="Script" uid="uid://bheb3uqgy81ns" path="res://addons/netfox_sharp/nodes/TickInterpolator.cs" id="10_yjon8"]
+[ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="11_asnce"]
+[ext_resource type="Script" uid="uid://bofpvecf31lmg" path="res://Scripts/Entities/Quanta-PlayerController/CameraController.cs" id="12_yjon8"]
+
+[sub_resource type="Resource" id="Resource_1ysqn"]
+script = ExtResource("3_1yudm")
+metadata/_custom_type_script = "uid://bavwlqhn8wtxa"
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ody6p"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qju8t"]
+size = Vector3(0.3, 1.6, 0.3)
+
+[node name="QuantaPlayerController" type="Node" node_paths=PackedStringArray("rollbackSynchronizer", "playerController", "inputController", "camera3D")]
+physics_interpolation_mode = 2
+script = ExtResource("1_ody6p")
+rollbackSynchronizer = NodePath("QuantaPlayerController/RollbackSynchronizerSharp")
+playerController = NodePath("QuantaPlayerController")
+inputController = NodePath("QuantaPlayerController/Input")
+camera3D = NodePath("QuantaPlayerController/LocalCameraController/HorizontalView/VerticalView/CameraMount/QuantaPlayerCamera/MainCamera")
+playerParams = ExtResource("2_cw8r4")
+metadata/_custom_type_script = "uid://cm0hf5aj0west"
+
+[node name="QuantaPlayerController" type="CharacterBody3D" parent="." node_paths=PackedStringArray("collisionHull", "localController", "duckTimer", "InputController")]
+top_level = true
+collision_layer = 3
+collision_mask = 3
+floor_constant_speed = true
+script = ExtResource("1_kii6u")
+collisionHull = NodePath("CollisionShape3D")
+localController = NodePath("LocalCameraController")
+duckTimer = NodePath("Duck Timer")
+InputController = NodePath("Input")
+PlayerParams = SubResource("Resource_1ysqn")
+metadata/_custom_type_script = "uid://bekpeljt30w4k"
+
+[node name="RollbackSynchronizerSharp" type="Node" parent="QuantaPlayerController" node_paths=PackedStringArray("Root")]
+script = ExtResource("2_o6wgq")
+Root = NodePath("..")
+EnablePrediction = true
+StateProperties = Array[String]([":ducking", ":ducked", ":velocity", ":ProxyPosition"])
+InputProperties = Array[String](["Input:movementInput", "Input:moveDir", "Input:jumpOn", "Input:duckOn", "Input:mouseInput", "Input:teleport"])
+metadata/_custom_type_script = "uid://ddiqjj10jmqj1"
+
+[node name="InternalRollbackSynchronizer" type="Node" parent="QuantaPlayerController/RollbackSynchronizerSharp" node_paths=PackedStringArray("root")]
+script = ExtResource("3_5vmmf")
+root = NodePath("../..")
+enable_prediction = true
+state_properties = Array[String]([":ducking", ":ducked", ":velocity", ":ProxyPosition"])
+diff_ack_interval = 24
+input_properties = Array[String](["Input:movementInput", "Input:moveDir", "Input:jumpOn", "Input:duckOn", "Input:mouseInput", "Input:teleport"])
+enable_input_broadcast = false
+
+[node name="TickInterpolatorSharp" type="Node" parent="QuantaPlayerController" node_paths=PackedStringArray("Root")]
+script = ExtResource("10_yjon8")
+Root = NodePath("..")
+Properties = Array[String]([":position"])
+metadata/_custom_type_script = "uid://bheb3uqgy81ns"
+
+[node name="InternalTickInterpolator" type="Node" parent="QuantaPlayerController/TickInterpolatorSharp" node_paths=PackedStringArray("root")]
+script = ExtResource("11_asnce")
+root = NodePath("../..")
+enabled = false
+properties = Array[String]([":position"])
+record_first_state = false
+enable_recording = false
+
+[node name="Input" type="Node" parent="QuantaPlayerController" node_paths=PackedStringArray("PlayerController")]
+script = ExtResource("4_4j4b7")
+PlayerController = NodePath("..")
+PlayerParams = ExtResource("2_cw8r4")
+metadata/_custom_type_script = "uid://n7axbxksqkd5"
+
+[node name="Capsule" type="MeshInstance3D" parent="QuantaPlayerController"]
+physics_interpolation_mode = 1
+transform = Transform3D(0.448087, 0, 0, 0, 0.623046, 0, 0, 0, 0.426581, 0, -0.1, 0)
+mesh = SubResource("CapsuleMesh_ody6p")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="QuantaPlayerController"]
+shape = SubResource("BoxShape3D_qju8t")
+
+[node name="PlayerPortalTraveller" type="Node" parent="QuantaPlayerController" node_paths=PackedStringArray("localController", "body", "positionNode")]
+script = ExtResource("10_bdj14")
+localController = NodePath("../LocalCameraController")
+body = NodePath("..")
+positionNode = NodePath("../LocalCameraController/HorizontalView/VerticalView/CameraMount")
+
+[node name="LocalCameraController" type="Node3D" parent="QuantaPlayerController" node_paths=PackedStringArray("horizontalView", "verticalView", "cameraMount")]
+script = ExtResource("12_yjon8")
+horizontalView = NodePath("HorizontalView")
+verticalView = NodePath("HorizontalView/VerticalView")
+cameraMount = NodePath("HorizontalView/VerticalView/CameraMount")
+metadata/_custom_type_script = "uid://bofpvecf31lmg"
+
+[node name="HorizontalView" type="Node3D" parent="QuantaPlayerController/LocalCameraController"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.711, 0)
+
+[node name="VerticalView" type="Node3D" parent="QuantaPlayerController/LocalCameraController/HorizontalView"]
+
+[node name="CameraMount" type="Marker3D" parent="QuantaPlayerController/LocalCameraController/HorizontalView/VerticalView"]
+gizmo_extents = 0.5
+
+[node name="QuantaPlayerCamera" type="Node3D" parent="QuantaPlayerController/LocalCameraController/HorizontalView/VerticalView/CameraMount" node_paths=PackedStringArray("Camera", "InputController")]
+script = ExtResource("10_1ysqn")
+Camera = NodePath("MainCamera")
+InputController = NodePath("../../../../../Input")
+
+[node name="MainCamera" type="Camera3D" parent="QuantaPlayerController/LocalCameraController/HorizontalView/VerticalView/CameraMount/QuantaPlayerCamera"]
+cull_mask = 1048573
+fov = 100.0
+near = 0.001
+far = 500.0
+
+[node name="MainCamRaycast" type="RayCast3D" parent="QuantaPlayerController/LocalCameraController/HorizontalView/VerticalView/CameraMount/QuantaPlayerCamera/MainCamera"]
+enabled = false
+target_position = Vector3(0, 0, -1000)
+collision_mask = 9
+debug_shape_custom_color = Color(0.635453, 0.379358, 0.779018, 1)
+
+[node name="Duck Timer" type="Timer" parent="QuantaPlayerController"]
+wait_time = 0.5

@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://dkdf5e7ktxpxb"]
+
+[ext_resource type="Script" uid="uid://psdrrxj2snlf" path="res://Scripts/Networking/MultiplayerRoot.cs" id="1_be70e"]
+[ext_resource type="PackedScene" uid="uid://dxxbxfmn6j3ij" path="res://QuantaPlayerController.tscn" id="2_0higv"]
+[ext_resource type="PackedScene" uid="uid://7jatxmt3c5i7" path="res://World.tscn" id="2_n1hjx"]
+[ext_resource type="Script" uid="uid://h0pm5itb3p46" path="res://Scripts/UI/ServerMenu.cs" id="3_tf63k"]
+
+[node name="MultiplayerRoot" type="Node" node_paths=PackedStringArray("playerSpawner")]
+script = ExtResource("1_be70e")
+playerSpawner = NodePath("MultiplayerSpawner")
+player = ExtResource("2_0higv")
+metadata/_custom_type_script = "uid://psdrrxj2snlf"
+
+[node name="World" parent="." instance=ExtResource("2_n1hjx")]
+
+[node name="ServerMenu" type="Control" parent="." node_paths=PackedStringArray("root")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("3_tf63k")
+root = NodePath("..")
+metadata/_custom_type_script = "uid://h0pm5itb3p46"
+
+[node name="Host" type="Button" parent="ServerMenu"]
+layout_mode = 0
+offset_left = 479.0
+offset_top = 193.0
+offset_right = 688.0
+offset_bottom = 253.0
+theme_override_font_sizes/font_size = 25
+text = "Host"
+
+[node name="Join" type="Button" parent="ServerMenu"]
+layout_mode = 0
+offset_left = 478.0
+offset_top = 285.0
+offset_right = 687.0
+offset_bottom = 345.0
+theme_override_font_sizes/font_size = 25
+text = "Join
+"
+
+[node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://dxxbxfmn6j3ij")
+spawn_path = NodePath("..")
+
+[connection signal="pressed" from="ServerMenu/Host" to="ServerMenu" method="HostGame"]
+[connection signal="pressed" from="ServerMenu/Join" to="ServerMenu" method="JoinGame"]

@@ -1,0 +1,125 @@
+[gd_scene load_steps=13 format=3 uid="uid://bfwoclrc3iwof"]
+
+[ext_resource type="Script" uid="uid://ci85uyt3uh0ba" path="res://Scripts/Portals/Portal.cs" id="1_chk7b"]
+[ext_resource type="Script" uid="uid://b40br4iufxhe6" path="res://Scripts/Portals/Detector.cs" id="1_oj65b"]
+[ext_resource type="Script" uid="uid://ddiqjj10jmqj1" path="res://addons/netfox_sharp/nodes/RollbackSynchronizer.cs" id="2_6y6wf"]
+[ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="2_klqbf"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_hdyu8"]
+properties/0/path = NodePath(".:visible")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:position")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:rotation")
+properties/2/spawn = true
+properties/2/replication_mode = 2
+properties/3/path = NodePath("Detector:process_mode")
+properties/3/spawn = true
+properties/3/replication_mode = 2
+properties/4/path = NodePath(".:isPlaced")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath(".:process_mode")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_sso5f"]
+size = Vector3(1.598, 2.74451, 0.074)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6dqgo"]
+size = Vector3(1.315, 2.485, 1.065)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_msikn"]
+resource_local_to_scene = true
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_rsxxm"]
+radius = 0.0702498
+height = 1.70218
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_8yvlh"]
+size = Vector3(1.69612, 0.123962, 0.161987)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_xcw6p"]
+radius = 0.0819131
+height = 2.90438
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xeo51"]
+size = Vector3(1.85049, 0.0646667, 0.541841)
+
+[node name="PortalCSharp" type="Node3D" node_paths=PackedStringArray("detector", "portalVisual")]
+script = ExtResource("1_chk7b")
+detector = NodePath("Detector")
+portalVisual = NodePath("PortalVisual")
+
+[node name="RollbackSynchronizerSharp" type="Node" parent="." node_paths=PackedStringArray("Root")]
+script = ExtResource("2_6y6wf")
+Root = NodePath("..")
+StateProperties = []
+InputProperties = []
+metadata/_custom_type_script = "uid://ddiqjj10jmqj1"
+
+[node name="InternalRollbackSynchronizer" type="Node" parent="RollbackSynchronizerSharp" node_paths=PackedStringArray("root")]
+script = ExtResource("2_klqbf")
+root = NodePath("../..")
+diff_ack_interval = 24
+enable_input_broadcast = false
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_hdyu8")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="."]
+collision_layer = 8
+collision_mask = 8
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00213623, 0.0154577)
+shape = SubResource("BoxShape3D_sso5f")
+
+[node name="ShapeCast3D" type="ShapeCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.025804639)
+shape = SubResource("BoxShape3D_6dqgo")
+target_position = Vector3(0, 0, 0.145)
+collision_mask = 2
+
+[node name="Detector" type="Node" parent="." node_paths=PackedStringArray("shapeCast", "environmentFloor", "portal")]
+script = ExtResource("1_oj65b")
+shapeCast = NodePath("../ShapeCast3D")
+environmentFloor = NodePath("../RigidBody3D/CollisionShape3D6")
+portal = NodePath("..")
+
+[node name="PortalVisual" type="CSGBox3D" parent="."]
+transform = Transform3D(1, -0.000359994, 5.33359e-05, 0.000359989, 1, 0.000122459, -5.33716e-05, -0.000122443, 1, 0, 0, 0)
+layers = 8
+size = Vector3(1.6, 2.75, 0.1)
+material = SubResource("ShaderMaterial_msikn")
+
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
+collision_layer = 4
+collision_mask = 4
+mass = 0.001
+gravity_scale = 0.0
+can_sleep = false
+lock_rotation = true
+freeze = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(-4.37114e-08, 0.999999, -0.00127402, -1, -4.37113e-08, 5.56892e-11, 0, 0.00127402, 0.999999, -0.00012207, -1.41624, -0.0597586)
+shape = SubResource("CapsuleShape3D_rsxxm")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.00177756, 1.38327, -0.0821002)
+shape = SubResource("BoxShape3D_8yvlh")
+
+[node name="CollisionShape3D3" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.852101, 0.0161397, -0.0851675)
+shape = SubResource("CapsuleShape3D_xcw6p")
+
+[node name="CollisionShape3D5" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.842392, 0.0161397, -0.0817514)
+shape = SubResource("CapsuleShape3D_xcw6p")
+
+[node name="CollisionShape3D6" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.014612, -1.40506, 0.199218)
+shape = SubResource("BoxShape3D_xeo51")
