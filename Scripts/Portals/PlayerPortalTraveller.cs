@@ -14,15 +14,14 @@ public partial class PlayerPortalTraveller : PortalTraveller
 
     private NetfoxLogger logger = NetfoxLogger.ForNetfox("NetworkRollback");
 
-    public override void Travel(Portal entryPortal, Portal exitPortal)
+    public override void Travel()
     {
-        var transformedVel = entryPortal.RealToExitDirection(body.Velocity);
-        body.Position = entryPortal.RealToExitPosition(body.GlobalPosition);
-        body.Velocity = transformedVel;
+        body.Position = exitPosition;
+        body.Velocity = exitVelocity;
         body.FindChildByType<TickInterpolator>()?.Teleport();
         logger.LogWarning("Finished moving to: " + body.Position);
 
-        var r1 = entryPortal.RealToExitTransform(localController.cameraMount.GlobalTransform).Basis.GetEuler();
+        var r1 = exitEuler;
         localController.horizontalView.RotateObjectLocal(Vector3.Down,
             localController.horizontalView.Transform.Basis.GetEuler().Y - r1.Y);
         localController.verticalView.RotateObjectLocal(Vector3.Left,

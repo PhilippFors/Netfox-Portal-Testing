@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Godot;
+using Godot.Collections;
+using Netfox_Test.Scripts.Extensions;
+using Netfox;
 
 namespace Netfox_Test.Scripts.Portals;
 
@@ -33,6 +36,7 @@ public partial class Detector : Node
 {
     [Export] public ShapeCast3D shapeCast;
     [Export] private CollisionShape3D environmentFloor;
+    [Export] public Area3D area;
     [Export] private Portal portal;
 
     public List<TrackedBody> trackedBodies = new List<TrackedBody>();
@@ -40,33 +44,73 @@ public partial class Detector : Node
     public Action<PhysicsBody3D> onPortalEnter;
     public Action<PhysicsBody3D> onPortalExit;
 
+    public override void _Ready()
+    {
+        NetfoxSharp.NetworkRollback.OnPrepareTick += OnPrepareTick;
+    }
+
+    private void OnPrepareTick(long tick)
+    {
+        if (!portal.isPlaced)
+            return;
+        
+        var bodies = area.GetOverlappingBodies();
+        UpdateTrackedBodies(bodies);
+    }
+
     public override void _Process(double delta)
     {
         if (!portal.isPlaced)
             return;
 
         environmentFloor.Disabled = portal.GlobalTransform.Basis.Y.Dot(Vector3.Up) < 1;
-        shapeCast.ForceShapecastUpdate();
-        var collisionCount = shapeCast.GetCollisionCount();
-        var shapeCastColliders = new List<PhysicsBody3D>();
-        for (int i = 0; i < collisionCount; i++)
-        {
-            var body = shapeCast.GetCollider(i);
-            if (body is not PhysicsBody3D physicsBody3D)
-            {
-                continue;
-            }
+        // shapeCast.ForceShapecastUpdate();
+        // var collisionCount = shapeCast.GetCollisionCount();
+        // var shapeCastColliders = new List<PhysicsBody3D>();
+        // for (int i = 0; i < collisionCount; i++)
+        // {
+        //     var body = shapeCast.GetCollider(i);
+        //     if (body is not PhysicsBody3D physicsBody3D)
+        //     {
+        //         continue;
+        //     }
+        //
+        //     shapeCastColliders.Add(physicsBody3D);
+        //     AddPhysicsBody(physicsBody3D, false);
+        // }
+        //
+        // for (int i = 0; i < trackedBodies.Count; i++)
+        // {
+        //     var body = trackedBodies[i];
+        //     if (!shapeCastColliders.Contains(body.body))
+        //     {
+        //         shapeCastColliders.Remove(body.body);
+        //         RemovePhysicsBody(body.body);
+        //         i--;
+        //     }
+        // }
+    }
 
-            shapeCastColliders.Add(physicsBody3D);
+    private void UpdateTrackedBodies(Array<Node3D> bodies)
+    {
+        var foundBodies = new List<PhysicsBody3D>();
+        foreach(var body in bodies)
+        {
+            if (body is not PhysicsBody3D physicsBody3D)
+                continue;
+            if(body.FindChildByType<PortalTraveller>() == null)
+                continue;
+
+            foundBodies.Add(physicsBody3D);
             AddPhysicsBody(physicsBody3D, false);
         }
 
         for (int i = 0; i < trackedBodies.Count; i++)
         {
             var body = trackedBodies[i];
-            if (!shapeCastColliders.Contains(body.body))
+            if (!foundBodies.Contains(body.body))
             {
-                shapeCastColliders.Remove(body.body);
+                foundBodies.Remove(body.body);
                 RemovePhysicsBody(body.body);
                 i--;
             }

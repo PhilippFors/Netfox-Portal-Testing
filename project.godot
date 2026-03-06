@@ -70,7 +70,7 @@ pm_moveforward={
 [netfox]
 
 time/tickrate=60
-rollback/display_offset=1
+rollback/display_offset=0
 
 [physics]
 

@@ -95,10 +95,14 @@ public partial class Portal : Node3D
         var player = (QuantaPlayerController)body.body;
         player.loggerFlag = true;
         player.logTickStart = tick;
-        traveller.isTravelling = true;
-        traveller.Travel(this, targetPortal);
+        logger.LogWarning("Teleport tick: " + tick);
+        var exitPosition = RealToExitPosition(player.GlobalPosition);
+        exitPosition += targetPortal.GlobalTransform.Basis.Z.Normalized(); // some offset issues with floor portals require an extra push
+        var exitVelocity = RealToExitDirection(player.Velocity);
+        var exitEuler = RealToExitTransform(player.localController.cameraMount.GlobalTransform).Basis.GetEuler();
+        traveller.StartTeleport(exitPosition, exitVelocity, exitEuler);
         logger.LogWarning("Moving " + body.body.GetParent().Name + " through " + Name);
-        NetworkRollback.Mutate(traveller, tick);
+        // NetworkRollback.Mutate(traveller, tick);
         
         detector.RemovePhysicsBody(body.body);
         targetPortal.detector.AddPhysicsBody(body.body, true);

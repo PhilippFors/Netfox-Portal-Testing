@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bfwoclrc3iwof"]
+[gd_scene load_steps=14 format=3 uid="uid://bfwoclrc3iwof"]
 
 [ext_resource type="Script" uid="uid://ci85uyt3uh0ba" path="res://Scripts/Portals/Portal.cs" id="1_chk7b"]
 [ext_resource type="Script" uid="uid://b40br4iufxhe6" path="res://Scripts/Portals/Detector.cs" id="1_oj65b"]
@@ -48,6 +48,9 @@ height = 2.90438
 [sub_resource type="BoxShape3D" id="BoxShape3D_xeo51"]
 size = Vector3(1.85049, 0.0646667, 0.541841)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_tn7ck"]
+size = Vector3(1.409668, 2.8187866, 1.1309814)
+
 [node name="PortalCSharp" type="Node3D" node_paths=PackedStringArray("detector", "portalVisual")]
 script = ExtResource("1_chk7b")
 detector = NodePath("Detector")
@@ -83,10 +86,11 @@ shape = SubResource("BoxShape3D_6dqgo")
 target_position = Vector3(0, 0, 0.145)
 collision_mask = 2
 
-[node name="Detector" type="Node" parent="." node_paths=PackedStringArray("shapeCast", "environmentFloor", "portal")]
+[node name="Detector" type="Node" parent="." node_paths=PackedStringArray("shapeCast", "environmentFloor", "area", "portal")]
 script = ExtResource("1_oj65b")
 shapeCast = NodePath("../ShapeCast3D")
 environmentFloor = NodePath("../RigidBody3D/CollisionShape3D6")
+area = NodePath("../Area3D")
 portal = NodePath("..")
 
 [node name="PortalVisual" type="CSGBox3D" parent="."]
@@ -123,3 +127,12 @@ shape = SubResource("CapsuleShape3D_xcw6p")
 [node name="CollisionShape3D6" type="CollisionShape3D" parent="RigidBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.014612, -1.40506, 0.199218)
 shape = SubResource("BoxShape3D_xeo51")
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_layer = 2
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.009033203, -0.06185913, 0.06549072)
+shape = SubResource("BoxShape3D_tn7ck")

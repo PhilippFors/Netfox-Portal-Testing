@@ -21,7 +21,7 @@ targetPortal = NodePath("../PortalCSharp2")
 isPlaced = true
 
 [node name="PortalCSharp2" parent="." node_paths=PackedStringArray("targetPortal") instance=ExtResource("1_c6gwx")]
-transform = Transform3D(1, 0, 0, 0, 0.9999998, -1.1415619e-08, 0, 1.3909059e-08, 0.43160835, -2.5506954, 1.6000677, -7.0272636)
+transform = Transform3D(1, 0, 0, 0, -2.9802322e-08, 0.43160835, 0, -0.9999998, -7.450581e-09, -2.5506954, 0.2520064, -7.0272636)
 targetPortal = NodePath("../PortalCSharp")
 isPlaced = true
 
